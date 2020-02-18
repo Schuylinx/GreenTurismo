@@ -50,6 +50,10 @@ class MapService {
         return this.chargeTerminalList[id];
     }
 
+    getPointDeRechargeListSize() {
+        return this.chargeTerminalList.length;
+    }
+
     getMap() {
         return this.map;
     }

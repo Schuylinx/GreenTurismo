@@ -28,7 +28,7 @@ class Map {
     }
 
     addMarker(latitude, longitude) {
-        L.marker().addTo(this.map);
+        L.marker([latitude, longitude]).addTo(this.map);
     }
 
 }
