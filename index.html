@@ -22,13 +22,35 @@
                 integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
                 crossorigin="">
         </script>
-
+        <script type="text/javascript" src="src/js/conf/config.js"></script>
+        <script type="module" src="src/js/app.js"></script>
     </head>
     <body>
 
-        <div id="gtMap"></div>
+        <form class="formulaire">
+            <div class="row">
+                <div class="col-auto">
+                    <div class="input-group mb-2">
+                        <div class="input-group-prepend">
+                            <div class="input-group-text">A</div>
+                        </div>
+                        <input type="text" class="form-control" id="positionDepart" value="" placeholder="Départ">
+                    </div>
+                </div>
+                <div class="col-auto">
+                    <div class="input-group mb-2">
+                        <div class="input-group-prepend">
+                            <div class="input-group-text">B</div>
+                        </div>
+                        <input type="text" class="form-control" id="positionArrivee" value="" placeholder="Arrivée">
+                    </div>
+                </div>
+                <button type="button" class="btn btn-success mb-2">Sélectionner sur la carte</button>
+                <button type="button" class="btn btn-primary mb-2" id="recherchePoints">Rechercher !</button>
+            </div>    
+        </form>
 
-        <h1>Hello World !</h1>
+        <div id="gtMap"></div>
 
         <!-- SCRIPTS -->
         <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
@@ -43,6 +65,5 @@
                 integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
                 crossorigin="anonymous">
         </script>
-        <script type="module" src="src/js/app.js"></script>
     </body>
 </html>
