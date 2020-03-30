@@ -3,6 +3,73 @@
     margin: 0;
 }
 
+.layout {
+    position: fixed;
+    z-index: 2;
+}
+
+.side-left {
+    left: 10px;
+    top: 90px;
+}
+
+.side-right {
+    right: 30px;
+    top: 20px;
+}
+
+.side-top {
+    top: 10px;
+    left: 60px;
+    height: 32px;
+}
+
+.control {
+    position: relative;
+    width: 32px;
+    height: 32px;
+    background-color: rgba(255, 255, 255, 1);
+    text-align: center;
+    cursor: pointer;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    border: 2px solid rgba(0,0,0,0.2);
+    background-clip: padding-box;
+}
+
+.control:hover {
+    background-color: #f4f4f4;
+}
+
+.control > i {
+    position: relative;
+    top: calc(50% - 13px);
+}
+
+#pathCalculator {
+    background-color: rgba(255, 255, 255, 0.7);
+    padding: 10px;
+    border-radius: 3px;
+    display: none;
+}
+
+#pathCalculator > input[type="text"] {
+    border: none;
+    padding: 5px;
+    text-indent: .3em;
+    border-radius: 3px;
+    height: 40px;
+}
+
+#pathCalculator > input[type="submit"] {
+    border: none;
+    padding: 10px;
+    height: 40px;
+    border-radius: 3px;
+    background-color: #2ecc71;
+}
+
 #gtMap {
     height: 100vh;
+    z-index: 1;
 }
