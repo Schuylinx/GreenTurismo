@@ -92,6 +92,9 @@ class Map {
             }
         });
     }
+    getMap() {
+        return this.map;
+    }
 
 }
 
