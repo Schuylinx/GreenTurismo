@@ -3,12 +3,13 @@ import { Address } from './class/Address.js';
 import { ChargeTerminal } from './class/ChargeTerminal.js';
 
 //var url = 'https://api.openchargemap.io/v3/poi/?output=json&countrycode=FR&compact=true&verbose=false';
-var url = "http://localhost/gtV2/GreenTurismo/src/js/json/OpenChargeMapData.json";
+var url = "http://localhost/GreenTurismo/src/js/json/OpenChargeMapData.json";
 var mapService = new MapService();
 mapService.loadMapDataFrom(url).then(function(response){
     
     var data = JSON.parse(response);
     var tmpList = new Array();
+    var map = mapService.getMap();
 
     for (let i = 0; i < data.length; i++) {
         var object = data[i];
@@ -32,13 +33,18 @@ mapService.loadMapDataFrom(url).then(function(response){
         mapService.setPointDeRechargeList(tmpList);
     }
 
-    mapService.getMap().render();
+    map.render();
     
+    var markers = L.markerClusterGroup();
+
     for (let i = 0; i < mapService.getPointDeRechargeListSize(); i++) {
-        mapService.getMap().addMarker(
-            mapService.getPointDeRechargeList(i).getAddress().getLatitude(),
-            mapService.getPointDeRechargeList(i).getAddress().getLongitude()
+        markers.addLayer(
+            L.marker([
+                mapService.getPointDeRechargeList(i).getAddress().getLatitude(),
+                mapService.getPointDeRechargeList(i).getAddress().getLongitude()
+            ])
         );
     }
+    map.getMap().addLayer(markers);
 
 });

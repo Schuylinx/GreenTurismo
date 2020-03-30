@@ -23,12 +23,14 @@ class Map {
             accessToken: "pk.eyJ1IjoiZW56b2NvbnRpbmhvIiwiYSI6ImNrNmkyYjVzdjFnM3IzZW52N21ydmgydG8ifQ.t2TaKZvtBCCrGvyLM2UjJA"
         }).addTo(this.map);
 
-        console.log(this.map);
-
     }
 
     addMarker(latitude, longitude) {
         L.marker([latitude, longitude]).addTo(this.map);
+    }
+
+    getMap() {
+        return this.map;
     }
 
 }
