@@ -17,7 +17,8 @@
               crossorigin="">
         <link rel="stylesheet" href="src/css/leaflet/MarkerCluster.Default.css">
         <link rel="stylesheet" href="src/css/leaflet/MarkerCluster.css">
-        <link rel="stylesheet" href="src/css/styles.css">
+		<link rel="stylesheet" href="src/css/styles.css">
+		<link rel="stylesheet" href="src/css/all.min.css">
 
         <!-- Leaflet's script -->
         <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"
@@ -56,6 +57,22 @@
         </form>
 
         <div id="gtMap"></div>
+
+		<div class="side-left layout">
+
+			<div id="search" class="control">
+				<i class="fas fa-search-location"></i>
+			</div>
+
+		</div>
+
+		<div class="side-top layout">
+			<form id="pathCalculator">
+				<input id="positionDepart" type="text" class="input start" placeholder="Lieu de départ&hellip;"/>
+				<input id="positionArrivee" type="text" class="input end" placeholder="Lieu d'arrivée&hellip;"/>
+				<input id="recherchePoints" type="submit" class="submit" value="Calculer mon trajet &raquo;"/>
+			</form>
+		</div>
 
         <!-- SCRIPTS -->
         <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"

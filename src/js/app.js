@@ -2,6 +2,8 @@ import { MapService } from './service/MapService.js';
 import { Address } from './class/Address.js';
 import { ChargeTerminal } from './class/ChargeTerminal.js';
 
+// View
+var showForm = false;
 
 //var url = 'https://api.openchargemap.io/v3/poi/?output=json&countrycode=FR&compact=true&verbose=false';
 var url = "http://localhost/GreenTurismo/src/js/json/OpenChargeMapData.json";
@@ -84,3 +86,16 @@ window.onload=function(){
     });
 };
 
+});
+
+document.getElementById("search").addEventListener("click", function(){
+    showForm = !showForm;
+
+    if(showForm) {
+        document.getElementById("pathCalculator").style.display = 'block';
+    } else {
+        document.getElementById("pathCalculator").style.display = 'none';
+    }
+
+});
+});
