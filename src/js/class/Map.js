@@ -52,7 +52,7 @@ class Map {
         return new Promise(function (resolve, reject) {
             console.log("markerDepart : ");
             console.log(markerDepart);
-
+            
             var originLatLng = markerDepart.getLatLng();
             var destinationLatLng = markerArrivee.getLatLng();
 

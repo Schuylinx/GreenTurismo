@@ -10,6 +10,7 @@ window.onload = function(){
     //var url = 'https://api.openchargemap.io/v3/poi/?output=json&countrycode=FR&compact=true&verbose=false';
     var url = "http://localhost/GreenTurismo/src/js/json/OpenChargeMapData.json";
     var mapService = new MapService();
+    var map = mapService.getMap();
 
     var markGreen = L.icon({
         iconUrl: 'src/img/marker_green.png',
@@ -79,10 +80,10 @@ window.onload = function(){
     document.getElementById('recherchePoints').onclick = function() {
         console.log("Recherche...");
         Promise.all([
-            map.searchLocation(map,'positionDepart', markerDepart), 
-            map.searchLocation(map,'positionArrivee',markerArrivee)
+            map.searchLocation('positionDepart', markerDepart), 
+            map.searchLocation('positionArrivee',markerArrivee)
         ]).then(function(data) {
-            map.navCalculator(map,markerDepart,markerArrivee,path,itinerary);
+            map.navCalculator(markerDepart,markerArrivee,path,itinerary);
         });
     };
 
