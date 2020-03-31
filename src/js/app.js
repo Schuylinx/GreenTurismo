@@ -8,6 +8,25 @@ var showForm = false;
 //var url = 'https://api.openchargemap.io/v3/poi/?output=json&countrycode=FR&compact=true&verbose=false';
 var url = "http://localhost/GreenTurismo/src/js/json/OpenChargeMapData.json";
 var mapService = new MapService();
+
+var markGreen = L.icon({
+	iconUrl: 'src/img/marker_green.png',
+    iconSize: [64, 64],
+    iconAnchor: [32,64],
+    shadowUrl: '',
+    shadowSize: [0, 0]
+}); 
+
+var markRed = L.icon({
+	iconUrl: 'src/img/marker_red.png',
+    iconSize: [64, 64],
+    iconAnchor: [32,64],
+    shadowUrl: '',
+    shadowSize: [0, 0]
+});
+
+window.onload = function(){
+
 mapService.loadMapDataFrom(url).then(function(response){
     
     var data = JSON.parse(response);
@@ -52,6 +71,21 @@ mapService.loadMapDataFrom(url).then(function(response){
 
 });
 
+var markerDepart = L.marker([0,0], {icon: markGreen});
+var markerArrivee = L.marker([0,0], {icon: markRed});
+var path = L.geoJSON();
+var itinerary = {};
+
+document.getElementById('recherchePoints').onclick = function() {
+    console.log("Recherche...");
+    Promise.all([
+    	map.searchLocation(map,'positionDepart', markerDepart), 
+        map.searchLocation(map,'positionArrivee',markerArrivee)
+    ]).then(function(data) {
+        map.navCalculator(map,markerDepart,markerArrivee,path,itinerary);
+    });
+}
+
 document.getElementById("search").addEventListener("click", function(){
     showForm = !showForm;
 
@@ -62,3 +96,4 @@ document.getElementById("search").addEventListener("click", function(){
     }
 
 });
+};
