@@ -36,9 +36,9 @@ class Map {
         L.marker([latitude, longitude]).addTo(this.map);
     }
 
-    searchLocation(map,idElement,marker) {
+    searchLocation(idElement,marker) {
+        var that = this;
         return new Promise(function (resolve, reject) {
-            console.log(document.getElementById(idElement).value);
             var search = document.getElementById(idElement).value;
             var requestURL = 'https://api.mapbox.com/geocoding/v5/mapbox.places/' + search + '.json?access_token=' + "pk.eyJ1IjoiZW56b2NvbnRpbmhvIiwiYSI6ImNrNmkyYjVzdjFnM3IzZW52N21ydmgydG8ifQ.t2TaKZvtBCCrGvyLM2UjJA";
             var request = new XMLHttpRequest();
@@ -47,28 +47,37 @@ class Map {
             request.send();
             request.onload = function() {
                 var addresses = request.response;
-                console.log(addresses);
-                console.log(map);
-                console.log("marker " + marker);
-
-
-                marker.setLatLng(L.latLng(addresses['features']['0']['center']['1'], addresses['features']['0']['center']['0'])).addTo(this.map);
-
-                
-                /* On replace la vue en fonction */
-                
-                //L.map('gtMap').setView([46.8181124, 2.4826541], 6);
-                // niveau de zoom : getbounds et fitbounds de la vue en fonction de la polyline
-
+                marker.setLatLng(L.latLng(addresses['features']['0']['center']['1'], addresses['features']['0']['center']['0']));
+                marker.addTo(that.map);
                 resolve();
             }
         });
     }
 
-    navCalculator(map,markerDepart,markerArrivee) {
+    navCalculator(markerDepart,markerArrivee,path,itinerary) {
         return new Promise(function (resolve, reject) {
-            var originLatLng = markerDepart.getLatLng()
-            var destinationLatLng = markerArrivee.getLatLng()
+            console.log("markerDepart : ");
+            console.log(markerDepart);
+
+            var originLatLng = markerDepart.getLatLng();
+            var destinationLatLng = markerArrivee.getLatLng();
+
+            var origine =  L.point(originLatLng['lng'],originLatLng['lat']);
+            var destination = L.point(destinationLatLng['lng'],destinationLatLng['lat']);
+
+            var distanceEnKm = originLatLng.distanceTo(destinationLatLng)/1000;
+            console.log("distance : ");
+            console.log(distanceEnKm);
+
+            var niveauDeZoom = distanceEnKm/10;
+
+            /* On replace la vue en fonction */
+            that.map.setView(originLatLng, destinationLatLng, niveauDeZoom);
+            // niveau de zoom : getbounds et fitbounds de la vue en fonction de la polyline
+
+
+
+
             var requestURL = 'https://api.mapbox.com/directions/v5/mapbox/driving/' + originLatLng['lng'] + ',' + originLatLng['lat'] + ';' + destinationLatLng['lng'] + ',' + destinationLatLng['lat'] + '.json?geometries=geojson&access_token=' + mapboxToken;
             var request = new XMLHttpRequest();
             request.open('GET', requestURL);
@@ -78,7 +87,7 @@ class Map {
                 var myLines = request.response['routes']['0']['geometry'];
                 map.removeLayer(path);
                 path = L.geoJSON(myLines, {style: myStyle});
-                path.addTo(map);
+                path.addTo(that.map);
                 resolve();
             }
         });

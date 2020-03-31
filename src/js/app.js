@@ -2,11 +2,29 @@ import { MapService } from './service/MapService.js';
 import { Address } from './class/Address.js';
 import { ChargeTerminal } from './class/ChargeTerminal.js';
 
+
 //var url = 'https://api.openchargemap.io/v3/poi/?output=json&countrycode=FR&compact=true&verbose=false';
 var url = "http://localhost/GreenTurismo/src/js/json/OpenChargeMapData.json";
 var mapService = new MapService();
 
 window.onload=function(){
+
+    var markGreen = L.icon({
+        iconUrl: 'src/img/marker_green.png',
+        iconSize: [64, 64],
+        iconAnchor: [32,64],
+        shadowUrl: '',
+        shadowSize: [0, 0]
+    }); 
+
+
+    var markRed = L.icon({
+        iconUrl: 'src/img/marker_red.png',
+        iconSize: [64, 64],
+        iconAnchor: [32,64],
+        shadowUrl: '',
+        shadowSize: [0, 0]
+    });
 
     mapService.loadMapDataFrom(url).then(function(response){
     
@@ -45,21 +63,24 @@ window.onload=function(){
             );
         }
 
-        var markerDepart = L.marker([0,0], {icon: markGreen});
-        var markerArrivee = L.marker([0,0], {icon: markRed});
+
+        var markerDepart = L.marker([0,0]);
+        markerDepart.setIcon(markGreen);
+
+        var markerArrivee = L.marker([0,0]);
+        markerArrivee.setIcon(markRed);
+
         var path = L.geoJSON();
         var itinerary = {};
 
         document.getElementById('recherchePoints').onclick = function() {
             console.log("Recherche...");
             Promise.all([
-                map.searchLocation(map,'positionDepart', markerDepart), 
-                map.searchLocation(map,'positionArrivee',markerArrivee)]).then(function(data) {
-                    map.navCalculator(map,markerDepart,markerArrivee,path,itinerary);
+                map.searchLocation('positionDepart', markerDepart), 
+                map.searchLocation('positionArrivee',markerArrivee)]).then(function(data) {
+                    map.navCalculator(markerDepart,markerArrivee,path,itinerary);
             });
         }
-
-
     });
 };
 
