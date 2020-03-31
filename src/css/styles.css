@@ -63,7 +63,7 @@
 
 #pathCalculator > input[type="submit"] {
     border: none;
-    padding: 10px;
+    padding: 5px;
     height: 40px;
     border-radius: 3px;
     background-color: #2ecc71;

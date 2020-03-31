@@ -14,7 +14,6 @@ class Map {
     }
 
     render() {
-
         this.map = L.map('gtMap').setView([46.8181124, 2.4826541], 6);
 
         L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
@@ -25,8 +24,8 @@ class Map {
             zoomOffset: -1,
             accessToken: this.accessToken
         }).addTo(this.map);
-
     }
+
     addMarker(latitude, longitude) {
         L.marker([latitude, longitude]).addTo(this.map);
     }
@@ -70,9 +69,6 @@ class Map {
             that.map.setView(originLatLng, destinationLatLng, niveauDeZoom);
             // niveau de zoom : getbounds et fitbounds de la vue en fonction de la polyline
 
-
-
-
             var requestURL = 'https://api.mapbox.com/directions/v5/mapbox/driving/' + originLatLng['lng'] + ',' + originLatLng['lat'] + ';' + destinationLatLng['lng'] + ',' + destinationLatLng['lat'] + '.json?geometries=geojson&access_token=' + mapboxToken;
             var request = new XMLHttpRequest();
             request.open('GET', requestURL);
@@ -86,6 +82,10 @@ class Map {
                 resolve();
             }
         });
+    }
+
+    getMap() {
+        return this.map;
     }
 
 }
