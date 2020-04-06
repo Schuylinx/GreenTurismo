@@ -13,7 +13,7 @@ window.onload = function(){
     var autonomie = 0;
 
     //var url = 'https://api.openchargemap.io/v3/poi/?output=json&countrycode=FR&compact=true&verbose=false';
-    var url = "http://localhost/GreenTurismo/src/js/json/OpenChargeMapData.json";
+    var url = "http://localhost/GreenTurismo/src/js/json/world.json";
     var mapService = new MapService();
     var map = mapService.getMap();
 
