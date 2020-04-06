@@ -44,7 +44,6 @@ class Map {
             request.onload = function() {
                 var addresses = request.response;
                 marker.setLatLng(L.latLng(addresses['features']['0']['center']['1'], addresses['features']['0']['center']['0']));
-                marker.addTo(that.map);
                 resolve();
             }
         });
@@ -119,12 +118,32 @@ class Map {
             let Point2 = waypoints[element+1];
             let distancePoints = 0;
 
-
             var routeControl = L.Routing.control({
                 waypoints: [
                     L.latLng(Point1.lat,Point1.lng),
                     L.latLng(Point2.lat,Point2.lng)
-                ]
+                ],
+                createMarker: function(i, start, n){
+                    if(i === 0){
+                        return L.marker(start.latLng, {
+                            icon: new L.Icon({
+                                iconUrl: 'src/img/marker_green.png',
+                                iconSize: [32, 32],
+                                shadowUrl: '',
+                                shadowSize: [0, 0]
+                            })
+                        });
+                    }else {
+                        return L.marker(start.latLng, {
+                            icon: new L.Icon({
+                                iconUrl: 'src/img/marker_red.png',
+                                iconSize: [32, 32],
+                                shadowUrl: '',
+                                shadowSize: [0, 0]
+                            })
+                        });
+                    }
+                }
             }).addTo(this.map);
             routeControl.on('routesfound', (e) => {
                 var routes = e.routes;

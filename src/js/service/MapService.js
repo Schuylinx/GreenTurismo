@@ -52,7 +52,7 @@ class MapService {
 
     getPointDeRechargeListSize() {
         return this.chargeTerminalList.length;
-    }
+    } 
 
     getMap() {
         return this.map;

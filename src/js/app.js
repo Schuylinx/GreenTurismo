@@ -17,22 +17,6 @@ window.onload = function(){
     var mapService = new MapService();
     var map = mapService.getMap();
 
-    var markGreen = L.icon({
-        iconUrl: 'src/img/marker_green.png',
-        iconSize: [32, 32],
-        iconAnchor: [32,64],
-        shadowUrl: '',
-        shadowSize: [0, 0]
-    }); 
-
-    var markRed = L.icon({
-        iconUrl: 'src/img/marker_red.png',
-        iconSize: [32, 32],
-        iconAnchor: [32,64],
-        shadowUrl: '',
-        shadowSize: [0, 0]
-    });
-
     mapService.loadMapDataFrom(url).then(function(response){
         
         var data = JSON.parse(response);
@@ -83,8 +67,8 @@ window.onload = function(){
 
     });
 
-    var markerDepart = L.marker([0,0], {icon: markGreen});
-    var markerArrivee = L.marker([0,0], {icon: markRed});
+    var markerDepart = L.marker([0,0]);
+    var markerArrivee = L.marker([0,0]);
 
     document.getElementById('recherchePoints').onclick = function() {
         var depart = document.getElementById('positionDepart').value;
@@ -92,7 +76,7 @@ window.onload = function(){
         if (autonomieMaximale != -1 && percentage > 0.05 && depart.length != 0 && arrivee.length != 0) {
             autonomie = percentage*autonomieMaximale;
             Promise.all([
-                map.searchLocation('positionDepart', markerDepart), 
+                map.searchLocation('positionDepart', markerDepart),
                 map.searchLocation('positionArrivee',markerArrivee)
             ]).then(function(data) {
                 map.navCalculator(markerDepart, markerArrivee, autonomie, autonomieMaximale);
