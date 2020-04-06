@@ -5,7 +5,11 @@ import { ChargeTerminal } from './class/ChargeTerminal.js';
 window.onload = function(){
 
     // View
-    var showForm = false;
+    var showForm = true;
+
+    // Autonomie
+    var autonomie = -1;
+    var percentage = -1;
 
     //var url = 'https://api.openchargemap.io/v3/poi/?output=json&countrycode=FR&compact=true&verbose=false';
     var url = "http://localhost/GreenTurismo/src/js/json/OpenChargeMapData.json";
@@ -61,11 +65,17 @@ window.onload = function(){
         var markers = L.markerClusterGroup();
 
         for (let i = 0; i < mapService.getPointDeRechargeListSize(); i++) {
+            var pointDeCharge = mapService.getPointDeRechargeList(i);
             markers.addLayer(
                 L.marker([
-                    mapService.getPointDeRechargeList(i).getAddress().getLatitude(),
-                    mapService.getPointDeRechargeList(i).getAddress().getLongitude()
-                ])
+                    pointDeCharge.getAddress().getLatitude(),
+                    pointDeCharge.getAddress().getLongitude()
+                ]).bindPopup(
+                    '<p><b>' + pointDeCharge.getAddress().getRoadName() + '</b>, '
+                    + pointDeCharge.getAddress().getZipCode() + ', '
+                    + pointDeCharge.getAddress().getCity() + '</p>'
+                    + '<button id="add-to-itinerary"><i class="fas fa-map-signs"></i> <span>Ajouter à l\'itinéraire</span></button>'
+                )
             );
         }
         map.getMap().addLayer(markers);
@@ -97,4 +107,25 @@ window.onload = function(){
         }
 
     });
+
+    document.getElementById('autonomie').addEventListener("input", function(){
+        document.getElementById('charge-value').innerHTML = this.value + " %";
+        percentage = parseFloat(this.value) / 100;
+    });
+
+    document.getElementById('car-model').addEventListener("change", function(){
+        switch (this.value) {
+            case '1':
+                autonomie = 250;
+            break;
+            case '2':
+                autonomie = 400;
+            break;
+            default:
+                autonomie = -1;
+            break;
+        }
+    });
+
+
 };
