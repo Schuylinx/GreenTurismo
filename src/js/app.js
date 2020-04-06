@@ -8,8 +8,9 @@ window.onload = function(){
     var showForm = true;
 
     // Autonomie
-    var autonomie = -1;
+    var autonomieMaximale = -1;
     var percentage = 0;
+    var autonomie = 0;
 
     //var url = 'https://api.openchargemap.io/v3/poi/?output=json&countrycode=FR&compact=true&verbose=false';
     var url = "http://localhost/GreenTurismo/src/js/json/OpenChargeMapData.json";
@@ -88,17 +89,17 @@ window.onload = function(){
     document.getElementById('recherchePoints').onclick = function() {
         var depart = document.getElementById('positionDepart').value;
         var arrivee = document.getElementById('positionArrivee').value;
-        if (autonomie != -1 && percentage > 0.05 && depart.length != 0 && arrivee.length != 0) {
-            var kilometres = percentage*autonomie;
+        if (autonomieMaximale != -1 && percentage > 0.05 && depart.length != 0 && arrivee.length != 0) {
+            autonomie = percentage*autonomieMaximale;
             Promise.all([
                 map.searchLocation('positionDepart', markerDepart), 
                 map.searchLocation('positionArrivee',markerArrivee)
             ]).then(function(data) {
-                map.navCalculator(markerDepart,markerArrivee, kilometres);
+                map.navCalculator(markerDepart,markerArrivee, autonomie);
             });
         } else {
             console.log(percentage);
-            if (autonomie == -1) {
+            if (autonomieMaximale == -1) {
                 document.getElementById('car-model').style.transition = ".3s ease";
                 document.getElementById('car-model').style.border = "1px solid #e84118";
             }
@@ -125,7 +126,7 @@ window.onload = function(){
 
     });
 
-    document.getElementById('autonomie').addEventListener("input", function(){
+    document.getElementById('autonomieMaximale').addEventListener("input", function(){
         if (this.value <= 5) {
             document.getElementById('charge-value').style.color = "#e84118";
         } else if (this.value > 5 && this.value < 20) {
@@ -134,23 +135,23 @@ window.onload = function(){
             document.getElementById('charge-value').style.color = "#00a8ff";
         } else {
             document.getElementById('charge-value').style.color = "#4cd137";
-        }
-        document.getElementById('charge-value').innerHTML = this.value + " %";
+        } 
         percentage = parseFloat(this.value) / 100;
+        document.getElementById('charge-value').innerHTML = this.value + " % ~" + parseInt(autonomieMaximale*percentage) + "km";
     });
 
     document.getElementById('car-model').addEventListener("change", function(){
         switch (this.value) {
             case '1':
-                autonomie = 250;
+                autonomieMaximale = 250;
                 document.getElementById('car-model').style.border = "none";
             break;
             case '2':
-                autonomie = 400;
+                autonomieMaximale = 400;
                 document.getElementById('car-model').style.border = "none";
             break;
             default:
-                autonomie = -1;
+                autonomieMaximale = -1;
             break;
         }
     });

@@ -94,9 +94,10 @@ class Map {
             }).addTo(this.map);
 
             routeControl.on('routesfound', function(e) {
-                  var routes = e.routes;
-                  distancePoints = routes[0].summary.totalDistance;
-                  console.log("Route entre le point " + element + " et son suivant : " + distancePoints + ' kilomètres.');
+                console.log(e);
+                var routes = e.routes;
+                distancePoints = routes[0].summary.totalDistance;
+                console.log("Route entre le point " + element + " et son suivant : " + distancePoints + ' kilomètres.');
             });
 
             console.log("La distance entre les deux points est de " + distancePoints + " et l'autonomie restante est de " + autonomieDebutVehiculeAssocie);
