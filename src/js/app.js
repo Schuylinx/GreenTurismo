@@ -8,11 +8,12 @@ window.onload = function(){
     var showForm = true;
 
     // Autonomie
-    var autonomie = -1;
-    var percentage = -1;
+    var autonomieMaximale = -1;
+    var percentage = 0;
+    var autonomie = 0;
 
     //var url = 'https://api.openchargemap.io/v3/poi/?output=json&countrycode=FR&compact=true&verbose=false';
-    var url = "http://localhost/GreenTurismo/src/js/json/OpenChargeMapData.json";
+    var url = "http://localhost/GreenTurismo/src/js/json/world.json";
     var mapService = new MapService();
     var map = mapService.getMap();
 
@@ -86,13 +87,32 @@ window.onload = function(){
     var markerArrivee = L.marker([0,0], {icon: markRed});
 
     document.getElementById('recherchePoints').onclick = function() {
-        console.log("Recherche...");
-        Promise.all([
-            map.searchLocation('positionDepart', markerDepart), 
-            map.searchLocation('positionArrivee',markerArrivee)
-        ]).then(function(data) {
-            map.navCalculator(markerDepart,markerArrivee);
-        });
+        var depart = document.getElementById('positionDepart').value;
+        var arrivee = document.getElementById('positionArrivee').value;
+        if (autonomieMaximale != -1 && percentage > 0.05 && depart.length != 0 && arrivee.length != 0) {
+            autonomie = percentage*autonomieMaximale;
+            Promise.all([
+                map.searchLocation('positionDepart', markerDepart), 
+                map.searchLocation('positionArrivee',markerArrivee)
+            ]).then(function(data) {
+                map.navCalculator(markerDepart,markerArrivee, autonomie);
+            });
+        } else {
+            console.log(percentage);
+            if (autonomieMaximale == -1) {
+                document.getElementById('car-model').style.transition = ".3s ease";
+                document.getElementById('car-model').style.border = "1px solid #e84118";
+            }
+            if (percentage < 0.05) {
+                document.getElementById('charge-value').style.color = "#e84118";
+            }
+            if (depart.length == 0) {
+                document.getElementById('positionDepart').style.border = "1px solid #e84118";
+            }
+            if (arrivee.length == 0) {
+                document.getElementById('positionArrivee').style.border = "1px solid #e84118";
+            }
+        }
     };
 
     document.getElementById("search").addEventListener("click", function(){
@@ -106,21 +126,32 @@ window.onload = function(){
 
     });
 
-    document.getElementById('autonomie').addEventListener("input", function(){
-        document.getElementById('charge-value').innerHTML = this.value + " %";
+    document.getElementById('autonomieMaximale').addEventListener("input", function(){
+        if (this.value <= 5) {
+            document.getElementById('charge-value').style.color = "#e84118";
+        } else if (this.value > 5 && this.value < 20) {
+            document.getElementById('charge-value').style.color = "#fbc531";
+        } else if (this.value >= 20 && this.value < 80) {
+            document.getElementById('charge-value').style.color = "#00a8ff";
+        } else {
+            document.getElementById('charge-value').style.color = "#4cd137";
+        } 
         percentage = parseFloat(this.value) / 100;
+        document.getElementById('charge-value').innerHTML = this.value + " % ~" + parseInt(autonomieMaximale*percentage) + "km";
     });
 
     document.getElementById('car-model').addEventListener("change", function(){
         switch (this.value) {
             case '1':
-                autonomie = 250;
+                autonomieMaximale = 250;
+                document.getElementById('car-model').style.border = "none";
             break;
             case '2':
-                autonomie = 400;
+                autonomieMaximale = 400;
+                document.getElementById('car-model').style.border = "none";
             break;
             default:
-                autonomie = -1;
+                autonomieMaximale = -1;
             break;
         }
     });

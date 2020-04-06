@@ -69,14 +69,15 @@
 				<input id="positionArrivee" type="text" class="input end" value="Lille" placeholder="Lieu d'arrivée&hellip;"/>
                 <input id="recherchePoints" type="button" class="submit" value="Calculer mon trajet"/>
                 <hr/>
-                <label for="autonomie"><i class="fas fa-battery-three-quarters"></i> Niveau de charge : <span id="charge-value">0 %</span></label>
-                <input id="autonomie" type="range" min="0" max="100" value="0">
                 <label for="model"><i class="fas fa-car"></i> Sélectionnez votre modèle :</label>
                 <select id="car-model">
                     <option value="0">...</option>
                     <option value="1">Renault Zoe R75</option>
                     <option value="2">Tesla Model 3</option>
                 </select>
+                <hr style="border:none;"/>
+                <label for="autonomieMaximale"><i class="fas fa-battery-three-quarters"></i> Niveau de charge : <span id="charge-value">0 %</span></label>
+                <input id="autonomieMaximale" type="range" min="0" max="100" value="0">
 			</form>
 		</div>
 
