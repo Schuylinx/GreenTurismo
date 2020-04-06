@@ -9,7 +9,7 @@ window.onload = function(){
 
     // Autonomie
     var autonomie = -1;
-    var percentage = -1;
+    var percentage = 0;
 
     //var url = 'https://api.openchargemap.io/v3/poi/?output=json&countrycode=FR&compact=true&verbose=false';
     var url = "http://localhost/GreenTurismo/src/js/json/OpenChargeMapData.json";
@@ -86,13 +86,32 @@ window.onload = function(){
     var markerArrivee = L.marker([0,0], {icon: markRed});
 
     document.getElementById('recherchePoints').onclick = function() {
-        console.log("Recherche...");
-        Promise.all([
-            map.searchLocation('positionDepart', markerDepart), 
-            map.searchLocation('positionArrivee',markerArrivee)
-        ]).then(function(data) {
-            map.navCalculator(markerDepart,markerArrivee);
-        });
+        var depart = document.getElementById('positionDepart').value;
+        var arrivee = document.getElementById('positionArrivee').value;
+        if (autonomie != -1 && percentage > 0.05 && depart.length != 0 && arrivee.length != 0) {
+            var kilometres = percentage*autonomie;
+            Promise.all([
+                map.searchLocation('positionDepart', markerDepart), 
+                map.searchLocation('positionArrivee',markerArrivee)
+            ]).then(function(data) {
+                map.navCalculator(markerDepart,markerArrivee, kilometres);
+            });
+        } else {
+            console.log(percentage);
+            if (autonomie == -1) {
+                document.getElementById('car-model').style.transition = ".3s ease";
+                document.getElementById('car-model').style.border = "1px solid #e84118";
+            }
+            if (percentage < 0.05) {
+                document.getElementById('charge-value').style.color = "#e84118";
+            }
+            if (depart.length == 0) {
+                document.getElementById('positionDepart').style.border = "1px solid #e84118";
+            }
+            if (arrivee.length == 0) {
+                document.getElementById('positionArrivee').style.border = "1px solid #e84118";
+            }
+        }
     };
 
     document.getElementById("search").addEventListener("click", function(){
@@ -107,6 +126,15 @@ window.onload = function(){
     });
 
     document.getElementById('autonomie').addEventListener("input", function(){
+        if (this.value <= 5) {
+            document.getElementById('charge-value').style.color = "#e84118";
+        } else if (this.value > 5 && this.value < 20) {
+            document.getElementById('charge-value').style.color = "#fbc531";
+        } else if (this.value >= 20 && this.value < 80) {
+            document.getElementById('charge-value').style.color = "#00a8ff";
+        } else {
+            document.getElementById('charge-value').style.color = "#4cd137";
+        }
         document.getElementById('charge-value').innerHTML = this.value + " %";
         percentage = parseFloat(this.value) / 100;
     });
@@ -115,9 +143,11 @@ window.onload = function(){
         switch (this.value) {
             case '1':
                 autonomie = 250;
+                document.getElementById('car-model').style.border = "none";
             break;
             case '2':
                 autonomie = 400;
+                document.getElementById('car-model').style.border = "none";
             break;
             default:
                 autonomie = -1;
