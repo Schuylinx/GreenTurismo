@@ -25,7 +25,7 @@ class Map {
             accessToken: this.accessToken
         }).addTo(this.map);
 
-        const cityName = this.getPointerLocation();
+        this.getPointerLocation();
     }
 
     addMarker(latitude, longitude) {
@@ -77,7 +77,17 @@ class Map {
         return request.responseText;
     }
 
-    getItinerary(markerDepart,markerArrivee,autonomieDebutVehiculeAssocie,autonomieMaxVehiculeAssocie){
+    async getDistancePoints(routeControl){
+        let test;
+        await routeControl.on('routesfound', function(e) {
+            var routes = e.routes;
+            test = routes[0].summary.totalDistance;
+            debugger;
+        });
+        return test;
+    }
+
+    async getItinerary(markerDepart,markerArrivee,autonomieDebutVehiculeAssocie,autonomieMaxVehiculeAssocie){
         var originLatLng = markerDepart.getLatLng();
         var destinationLatLng = markerArrivee.getLatLng();
         var waypoints = [];
@@ -122,13 +132,23 @@ class Map {
                 ]
             }).addTo(this.map);
 
+            // distancePoints = routeControl.on('routesfound', function(e) {
+            //     var routes = e.routes;
+            //     return routes[0].summary.totalDistance;
+            // });
+
+            let stringToReturn;
             routeControl.on('routesfound', function(e) {
-                console.log('e : ', e);
                 var routes = e.routes;
                 distancePoints = routes[0].summary.totalDistance;
-                console.log("Route entre le point " + element + " et son suivant : " + distancePoints + ' kilomètres.');
+                stringToReturn = returnString(distancePoints, autonomieDebutVehiculeAssocie)               
             });
-            console.log("La distance entre les deux points est de " + distancePoints + " et l'autonomie restante est de " + autonomieDebutVehiculeAssocie);
+            console.log(stringToReturn)
+        }
+        
+        function returnString(distancePoints, autonomieDebutVehiculeAssocie){
+            console.log('distancePoints : ' + distancePoints);
+            console.log('autonomieDebutVehiculeAssocie : ', autonomieDebutVehiculeAssocie);
             if(distancePoints > autonomieDebutVehiculeAssocie){
                 console.log("Distance trop élevée, rechargement de la batterie obligatoire sur le trajet. :(");
             }
@@ -136,7 +156,6 @@ class Map {
                 console.log("Distance réalisable en 1 trajet, pas besoin de s'arrêter ! :)");   
             }
         }
-            
 
         //Tant que la distance entre 2 points de la liste est supérieure à autonomie on va chercher un point 
         // Si point on l'ajoute à la liste et on relance le test à 0
