@@ -25,7 +25,7 @@ class Map {
             accessToken: this.accessToken
         }).addTo(this.map);
 
-        const cityName = this.getPointerLocation();
+        this.getPointerLocation();
     }
 
     addMarker(latitude, longitude) {
@@ -77,7 +77,16 @@ class Map {
         return request.responseText;
     }
 
-    getItinerary(markerDepart, markerArrivee, autonomieDebutVehiculeAssocie, autonomieMaxVehiculeAssocie){
+    async getDistancePoints(routeControl){
+        let test;
+        await routeControl.on('routesfound', function(e) {
+            var routes = e.routes;
+            test = routes[0].summary.totalDistance;
+        });
+        return test;
+    }
+
+    getItinerary(markerDepart,markerArrivee,autonomieDebutVehiculeAssocie,autonomieMaxVehiculeAssocie){
         var originLatLng = markerDepart.getLatLng();
         var destinationLatLng = markerArrivee.getLatLng();
         var waypoints = [];
@@ -105,12 +114,11 @@ class Map {
         for(element ; element < waypoints.length -1 ; element++){
             /*console.log(waypoints[element]);
             console.log(waypoints[element+1]);*/
+            let stringToReturn;
             let Point1 = waypoints[element];
             let Point2 = waypoints[element+1];
             let distancePoints = 0;
 
-            //console.log(Point1);
-            //console.log(Point2);
 
             var routeControl = L.Routing.control({
                 waypoints: [
@@ -118,14 +126,14 @@ class Map {
                     L.latLng(Point2.lat,Point2.lng)
                 ]
             }).addTo(this.map);
-
-            routeControl.on('routesfound', function(e) {
-                console.log('e : ', e);
+            routeControl.on('routesfound', (e) => {
                 var routes = e.routes;
-                distancePoints = routes[0].summary.totalDistance;
-                console.log("Route entre le point " + element + " et son suivant : " + distancePoints + ' kilomètres.');
+                distancePoints = (routes[0].summary.totalDistance) /1000;
+                stringToReturn = returnString(distancePoints, autonomieDebutVehiculeAssocie)               
             });
-            console.log("La distance entre les deux points est de " + distancePoints + " et l'autonomie restante est de " + autonomieDebutVehiculeAssocie);
+        }
+
+        function returnString(distancePoints, autonomieDebutVehiculeAssocie) {
             if(distancePoints > autonomieDebutVehiculeAssocie){
                 console.log("Distance trop élevée, rechargement de la batterie obligatoire sur le trajet. :(");
             }
@@ -133,13 +141,14 @@ class Map {
                 console.log("Distance réalisable en 1 trajet, pas besoin de s'arrêter ! :)");   
             }
         }
-            
         //Tant que la distance entre 2 points de la liste est supérieure à autonomie on va chercher un point 
         // Si point on l'ajoute à la liste et on relance le test à 0
         // Si pas de point on affiche trajet impossible en l'état actuel de la batterie
 
         return waypoints;
     }
+
+
 
     navCalculator(markerDepart, markerArrivee, autonomie, autonomieMaximale) {
         var that = this;
