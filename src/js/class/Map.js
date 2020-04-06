@@ -24,6 +24,8 @@ class Map {
             zoomOffset: -1,
             accessToken: this.accessToken
         }).addTo(this.map);
+
+        const cityName = this.getPointerLocation();
     }
 
     addMarker(latitude, longitude) {
@@ -48,11 +50,33 @@ class Map {
         });
     }
 
+    getPointerLocation(){
+        this.map.on('dblclick', function(e){
+            debugger;
+            const url = "https://api.mapbox.com/geocoding/v5/mapbox.places/" +  e.latlng.lng + "," + e.latlng.lat + ".json?access_token=pk.eyJ1IjoiZW56b2NvbnRpbmhvIiwiYSI6ImNrNmkyYjVzdjFnM3IzZW52N21ydmgydG8ifQ.t2TaKZvtBCCrGvyLM2UjJA";
+            var request = new XMLHttpRequest();
+            request.open('GET', url, false);
+            request.send();
+            const response = request.responseText;
+            return response.features[0].place_name;
+        });
+    }
+
+    getCityNameWithCoordinates(){
+        const url = "https://api.mapbox.com/geocoding/v5/mapbox.places/chester.json?proximity=" + lng + ", " + lat + "&access_token=" + this.accessToken;
+        var request = new XMLHttpRequest();
+        request.open('GET', url, false);
+        request.responseType = 'json';
+        request.send();
+        return request.responseText;
+    }
+
     getItinerary(markerDepart,markerArrivee,autonomieDebutVehiculeAssocie,autonomieMaxVehiculeAssocie){
         var originLatLng = markerDepart.getLatLng();
         var destinationLatLng = markerArrivee.getLatLng();
         var waypoints = [];
         //On ajoute le premier point de la liste (le markerDepart)
+        console.log("L, ")
         waypoints.push(L.latLng(originLatLng['lat'],originLatLng['lng']));
 
         //On ajoute le dernier point de la liste (le markerArrivee)
@@ -92,15 +116,17 @@ class Map {
                     L.latLng(Point2.lat,Point2.lng)
                 ]
             }).addTo(this.map);
-
+            debugger;
+            console.log('routeControl : ', routeControl);
             routeControl.on('routesfound', function(e) {
-                  var routes = e.routes;
-                  distancePoints = routes[0].summary.totalDistance;
-                  console.log("Route entre le point " + element + " et son suivant : " + distancePoints + ' kilomètres.');
+                debugger;
+                console.log('e : ', e);
+                var routes = e.routes;
+                distancePoints = routes[0].summary.totalDistance;
+                console.log("Route entre le point " + element + " et son suivant : " + distancePoints + ' kilomètres.');
             });
-
+            debugger;
             console.log("La distance entre les deux points est de " + distancePoints + " et l'autonomie restante est de " + autonomieDebutVehiculeAssocie);
-
             if(distancePoints > autonomieDebutVehiculeAssocie){
                 console.log("Distance trop élevée, rechargement de la batterie obligatoire sur le trajet. :(");
             }
@@ -156,7 +182,7 @@ class Map {
             request.onload = function() {
                 var myLines = request.response['routes']['0']['geometry'];
                 map.removeLayer(path);
-                path = L.geoJSON(myLines, {style: myStyle});
+                path = L.geoJSON(myLines, {style: myStyle});f
                 path.addTo(that.map);
                 resolve();
             }*/
