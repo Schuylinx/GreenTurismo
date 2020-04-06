@@ -18,7 +18,7 @@ window.onload = function(){
 
     var markGreen = L.icon({
         iconUrl: 'src/img/marker_green.png',
-        iconSize: [64, 64],
+        iconSize: [32, 32],
         iconAnchor: [32,64],
         shadowUrl: '',
         shadowSize: [0, 0]
@@ -26,7 +26,7 @@ window.onload = function(){
 
     var markRed = L.icon({
         iconUrl: 'src/img/marker_red.png',
-        iconSize: [64, 64],
+        iconSize: [32, 32],
         iconAnchor: [32,64],
         shadowUrl: '',
         shadowSize: [0, 0]
@@ -84,8 +84,6 @@ window.onload = function(){
 
     var markerDepart = L.marker([0,0], {icon: markGreen});
     var markerArrivee = L.marker([0,0], {icon: markRed});
-    var path = L.geoJSON();
-    var itinerary = {};
 
     document.getElementById('recherchePoints').onclick = function() {
         console.log("Recherche...");
@@ -93,7 +91,7 @@ window.onload = function(){
             map.searchLocation('positionDepart', markerDepart), 
             map.searchLocation('positionArrivee',markerArrivee)
         ]).then(function(data) {
-            map.navCalculator(markerDepart,markerArrivee,path,itinerary);
+            map.navCalculator(markerDepart,markerArrivee);
         });
     };
 
