@@ -50,7 +50,6 @@ class Map {
         });
     }
 
-<<<<<<< Updated upstream
     getPointerLocation(){
         this.map.on('dblclick', function(e){
             const url = "https://api.mapbox.com/geocoding/v5/mapbox.places/" +  e.latlng.lng + "," + e.latlng.lat + ".json?access_token=pk.eyJ1IjoiZW56b2NvbnRpbmhvIiwiYSI6ImNrNmkyYjVzdjFnM3IzZW52N21ydmgydG8ifQ.t2TaKZvtBCCrGvyLM2UjJA";
@@ -78,10 +77,7 @@ class Map {
         return request.responseText;
     }
 
-    getItinerary(markerDepart,markerArrivee,autonomieDebutVehiculeAssocie,autonomieMaxVehiculeAssocie){
-=======
     getItinerary(markerDepart, markerArrivee, autonomieDebutVehiculeAssocie, autonomieMaxVehiculeAssocie){
->>>>>>> Stashed changes
         var originLatLng = markerDepart.getLatLng();
         var destinationLatLng = markerArrivee.getLatLng();
         var waypoints = [];
