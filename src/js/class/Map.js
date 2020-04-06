@@ -50,17 +50,6 @@ class Map {
         });
     }
 
-    fillInput(cityName){
-        const startPos = document.getElementById('positionDepart');
-        const endPos = document.getElementById('positionArrivee');
-        debugger;
-        console.log('startPos : ', startPos.value);
-        debugger;
-        if(startPos.value == ''){
-
-        }
-    }
-
     getPointerLocation(){
         this.map.on('dblclick', function(e){
             const url = "https://api.mapbox.com/geocoding/v5/mapbox.places/" +  e.latlng.lng + "," + e.latlng.lat + ".json?access_token=pk.eyJ1IjoiZW56b2NvbnRpbmhvIiwiYSI6ImNrNmkyYjVzdjFnM3IzZW52N21ydmgydG8ifQ.t2TaKZvtBCCrGvyLM2UjJA";
@@ -132,16 +121,13 @@ class Map {
                     L.latLng(Point2.lat,Point2.lng)
                 ]
             }).addTo(this.map);
-            debugger;
-            console.log('routeControl : ', routeControl);
+
             routeControl.on('routesfound', function(e) {
-                debugger;
                 console.log('e : ', e);
                 var routes = e.routes;
                 distancePoints = routes[0].summary.totalDistance;
                 console.log("Route entre le point " + element + " et son suivant : " + distancePoints + ' kilomètres.');
             });
-            debugger;
             console.log("La distance entre les deux points est de " + distancePoints + " et l'autonomie restante est de " + autonomieDebutVehiculeAssocie);
             if(distancePoints > autonomieDebutVehiculeAssocie){
                 console.log("Distance trop élevée, rechargement de la batterie obligatoire sur le trajet. :(");
