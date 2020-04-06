@@ -50,6 +50,7 @@ class Map {
         });
     }
 
+<<<<<<< Updated upstream
     getPointerLocation(){
         this.map.on('dblclick', function(e){
             const url = "https://api.mapbox.com/geocoding/v5/mapbox.places/" +  e.latlng.lng + "," + e.latlng.lat + ".json?access_token=pk.eyJ1IjoiZW56b2NvbnRpbmhvIiwiYSI6ImNrNmkyYjVzdjFnM3IzZW52N21ydmgydG8ifQ.t2TaKZvtBCCrGvyLM2UjJA";
@@ -78,6 +79,9 @@ class Map {
     }
 
     getItinerary(markerDepart,markerArrivee,autonomieDebutVehiculeAssocie,autonomieMaxVehiculeAssocie){
+=======
+    getItinerary(markerDepart, markerArrivee, autonomieDebutVehiculeAssocie, autonomieMaxVehiculeAssocie){
+>>>>>>> Stashed changes
         var originLatLng = markerDepart.getLatLng();
         var destinationLatLng = markerArrivee.getLatLng();
         var waypoints = [];
@@ -99,12 +103,9 @@ class Map {
               console.log("Route totale : " + routes[0].summary.totalDistance + ' kilomètres.');
         });*/
 
-        autonomieDebutVehiculeAssocie = 250;
-        autonomieMaxVehiculeAssocie = 300;
-        let element=0;
-
         console.log("autonomieDebut : " + autonomieDebutVehiculeAssocie + " autonomieMaxVehiculeAssocie rechargé : " + autonomieMaxVehiculeAssocie);
-        
+
+        let element=0;
         for(element ; element < waypoints.length -1 ; element++){
             /*console.log(waypoints[element]);
             console.log(waypoints[element+1]);*/
@@ -137,7 +138,6 @@ class Map {
             }
         }
             
-
         //Tant que la distance entre 2 points de la liste est supérieure à autonomie on va chercher un point 
         // Si point on l'ajoute à la liste et on relance le test à 0
         // Si pas de point on affiche trajet impossible en l'état actuel de la batterie
@@ -145,9 +145,9 @@ class Map {
         return waypoints;
     }
 
-    navCalculator(markerDepart,markerArrivee,autonomieDebut) {
+    navCalculator(markerDepart, markerArrivee, autonomie, autonomieMaximale) {
         var that = this;
-        this.getItinerary(markerDepart,markerArrivee,10);
+        this.getItinerary(markerDepart, markerArrivee, autonomie, autonomieMaximale);
         return new Promise(function (resolve, reject) {
             
             var originLatLng = markerDepart.getLatLng();
