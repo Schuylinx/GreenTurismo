@@ -82,7 +82,6 @@ class Map {
         await routeControl.on('routesfound', function(e) {
             var routes = e.routes;
             test = routes[0].summary.totalDistance;
-            debugger;
         });
         return test;
     }
@@ -134,7 +133,7 @@ class Map {
             });
         }
 
-        returnString(distancePoints, autonomieDebutVehiculeAssocie){
+        function returnString(distancePoints, autonomieDebutVehiculeAssocie) {
             if(distancePoints > autonomieDebutVehiculeAssocie){
                 console.log("Distance trop élevée, rechargement de la batterie obligatoire sur le trajet. :(");
             }
