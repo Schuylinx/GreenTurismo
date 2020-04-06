@@ -95,7 +95,7 @@ window.onload = function(){
                 map.searchLocation('positionDepart', markerDepart), 
                 map.searchLocation('positionArrivee',markerArrivee)
             ]).then(function(data) {
-                map.navCalculator(markerDepart,markerArrivee, autonomie);
+                map.navCalculator(markerDepart, markerArrivee, autonomie, autonomieMaximale);
             });
         } else {
             console.log(percentage);
