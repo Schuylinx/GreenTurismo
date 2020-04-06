@@ -95,6 +95,7 @@
 input[type=range] {
     display: block;
     height: 26px;
+    width: 100%;
     -webkit-appearance: none;
     margin: 10px 0;
     background: transparent;
