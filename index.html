@@ -6,6 +6,8 @@
         <meta name="author" content="Hugo Ferrer, Enzo Contini">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+        <title>GreenTurismo</title>
+
         <!-- Bootstrap link -->
         <link rel="stylesheet"
               href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
@@ -69,7 +71,7 @@
 				<input id="positionArrivee" type="text" class="input end" placeholder="Lieu d'arrivée&hellip;"/>
                 <input id="recherchePoints" type="button" class="submit" value="Calculer mon trajet"/>
                 <hr/>
-                <label for="model"><i class="fas fa-car"></i> Sélectionnez votre modèle :</label>
+                <label for="car-model"><i class="fas fa-car"></i> Sélectionnez votre modèle :</label>
                 <select id="car-model">
                     <option value="0">...</option>
                     <option value="1">Renault Zoe R75</option>
@@ -79,7 +81,11 @@
                 <label for="autonomieMaximale"><i class="fas fa-battery-three-quarters"></i> Niveau de charge : <span id="charge-value">0 %</span></label>
                 <input id="autonomieMaximale" type="range" min="0" max="100" value="0">
 			</form>
-		</div>
+        </div>
+        
+        <div class="side-bottom layout">
+            <img src="src/img/logo_greenturismo.png" alt="GreenTurismo's logo" width="50%" height="50%"/>
+        </div>
 
         <!-- GreenTurismo app -->
         <!--<script type="module" src="src/js/app.js"></script>-->
