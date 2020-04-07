@@ -24,6 +24,11 @@
     top: 20px;
 }
 
+.side-bottom {
+    bottom: 10px;
+    left: 10px;
+}
+
 .side-top {
     top: 10px;
     left: 60px;
