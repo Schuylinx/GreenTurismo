@@ -1,3 +1,5 @@
+import { ChargeTerminal } from '../class/ChargeTerminal.js';
+
 /**
  * @class Map.js
  * Describe what is a map
@@ -6,11 +8,15 @@ class Map {
 
     /**
     * @param {any} map
+    * @param {ChargeTerminal[]} chargeTerminalList
     * @parama {string} accessToken
     */
+
     
-    constructor() {
+    
+    constructor(chargeList) {
         this.accessToken = "pk.eyJ1IjoiZW56b2NvbnRpbmhvIiwiYSI6ImNrNmkyYjVzdjFnM3IzZW52N21ydmgydG8ifQ.t2TaKZvtBCCrGvyLM2UjJA";
+        this.chargeTerminalList = chargeList;
     }
 
     render() {
@@ -89,23 +95,12 @@ class Map {
         var originLatLng = markerDepart.getLatLng();
         var destinationLatLng = markerArrivee.getLatLng();
         var waypoints = [];
+        var waypointsDeRecharge = [];
         //On ajoute le premier point de la liste (le markerDepart)
-        console.log("L, ")
         waypoints.push(L.latLng(originLatLng['lat'],originLatLng['lng']));
 
         //On ajoute le dernier point de la liste (le markerArrivee)
         waypoints.push(L.latLng(destinationLatLng['lat'],destinationLatLng['lng']));
-
-        /*var routeControl = L.Routing.control({
-          waypoints: [
-                L.latLng(originLatLng['lat'],originLatLng['lng']),
-                L.latLng(destinationLatLng['lat'],destinationLatLng['lng'])
-          ]
-        }).addTo(this.map);
-        routeControl.on('routesfound', function(e) {
-              var routes = e.routes;
-              console.log("Route totale : " + routes[0].summary.totalDistance + ' kilomètres.');
-        });*/
 
         console.log("autonomieDebut : " + autonomieDebutVehiculeAssocie + " autonomieMaxVehiculeAssocie rechargé : " + autonomieMaxVehiculeAssocie);
 
@@ -123,6 +118,7 @@ class Map {
                     L.latLng(Point1.lat,Point1.lng),
                     L.latLng(Point2.lat,Point2.lng)
                 ],
+                routeWhileDragging: false,
                 createMarker: function(i, start, n){
                     if(i === 0){
                         return L.marker(start.latLng, {
@@ -148,23 +144,68 @@ class Map {
             routeControl.on('routesfound', (e) => {
                 var routes = e.routes;
                 distancePoints = (routes[0].summary.totalDistance) /1000;
-                stringToReturn = returnString(distancePoints, autonomieDebutVehiculeAssocie)               
+                stringToReturn = returnWaypoints(distancePoints, autonomieDebutVehiculeAssocie, routes);         
             });
         }
 
-        function returnString(distancePoints, autonomieDebutVehiculeAssocie) {
+        function returnWaypoints(distancePoints, autonomieDebutVehiculeAssocie, routes) {
             if(distancePoints > autonomieDebutVehiculeAssocie){
                 console.log("Distance trop élevée, rechargement de la batterie obligatoire sur le trajet. :(");
+                //on va chercher un point de recharge proche cad distance entre A et recharge et entre B et recharge <<<< à distance A B
+                //
+
+                //on va parcourir e.routes[0].coordinates, pour chaques coordonnée, on calcule sa ditance au début en ajoutant 
+
+                let distanceCumulee = 0; 
+                let seuilAutonomieAcceptable = 80; //seuil de début de recherche d'une borne aux alentours
+                let autonomieRestante = 0;
+                var point;
+                var pointDeRecharge;
+                let pointOrigine;
+                let pointDestination;
+                let chargeDestination;
+                var distanceEnKm = originLatLng.distanceTo(destinationLatLng);
+                console.log(routes[0].coordinates.length);
+
+
+
+                for(point = 0; point < routes[0].coordinates.length-1; point++){
+                    pointOrigine = L.point(routes[0].coordinates[point].lat,routes[0].coordinates[point].lng);
+                    pointDestination = L.point(routes[0].coordinates[point+1].lat,routes[0].coordinates[point+1].lng);
+                    distanceCumulee += 0.92*(pointOrigine.distanceTo(pointDestination)*100); //On s'autorise 8% d'erreur sur le calcul point à point
+                    autonomieRestante = autonomieDebutVehiculeAssocie - distanceCumulee
+
+                    if(autonomieRestante < seuilAutonomieAcceptable){
+                        console.log("On a des ennuis au bout de " + distanceCumulee + "km.");
+                        for(pointDeRecharge = 0; pointDeRecharge<chargeList.length ; pointDeRecharge++){
+                            // On est à pointDestination
+                            chargeDestination = L.point(chargeList[pointDeRecharge].getAddress().getLatitude(),chargeList[pointDeRecharge].getAddress().getLongitude());
+                            if(pointDestination.distanceTo(chargeDestination) < autonomieRestante){
+                                //alors le point est atteignable avec l'autonomie qui nous reste
+                                waypointsDeRecharge.push(chargeList[pointDeRecharge].getAddress().getLatitude(),chargeList[pointDeRecharge].getAddress().getLongitude());
+                                console.log("On a rechargé la batterie à 100% au point de recharge de " + chargeList[pointDeRecharge].getAddress().getCity() + chargeList[pointDeRecharge].getAddress().getLatitude() + " " + chargeList[pointDeRecharge].getAddress().getLongitude())
+                                autonomieRestante = autonomieMaxVehiculeAssocie - chargeDestination.distanceTo(L.point(routes[0].coordinates[point+2].lat,routes[0].coordinates[point+2].lng));
+                            }
+
+                        }
+
+                        //à partir de pointDestination, on parcourt tous les pdr pour trouver celui dont la distanceTo est la plus faible et et qui respecte Aut100 − DR→B > Autcour − DP→B
+                        //on doit chercher un point dans un rayon de 80km pour aller recharger on l'ajoute à la liste on remet l'autonomie a 100% 
+                        // où :
+                        // - Aut100 désigne l’autonomie du véhicule chargé à 100 %,
+                        // - Autcour son autonomie courante au point P,
+                        // - Dx→y est la distance de x à y.
+                    }
+                }
+                //console.log("Distance finale cumulée : " + distanceCumulee);
             }
             else {
                 console.log("Distance réalisable en 1 trajet, pas besoin de s'arrêter ! :)");   
             }
         }
-        //Tant que la distance entre 2 points de la liste est supérieure à autonomie on va chercher un point 
-        // Si point on l'ajoute à la liste et on relance le test à 0
-        // Si pas de point on affiche trajet impossible en l'état actuel de la batterie
-
-        return waypoints;
+        
+        console.log(waypointsDeRecharge);
+        return waypointsDeRecharge;
     }
 
 
@@ -184,7 +225,7 @@ class Map {
             //console.log("distance : ");
             //console.log(distanceEnKm);
 
-            var niveauDeZoom = distanceEnKm/10;
+            //var niveauDeZoom = distanceEnKm/10;
             //console.log(niveauDeZoom);
 
             /* On replace la vue en fonction */

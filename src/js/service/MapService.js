@@ -15,7 +15,7 @@ class MapService {
 
     constructor() {
         this.chargeTerminalList = new Array();
-        this.map = new Map();
+        this.map = new Map(this.chargeTerminalList);
     }
 
     setEntryPoint(entryPoint) {
