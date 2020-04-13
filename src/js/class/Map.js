@@ -12,11 +12,15 @@ class Map {
     * @parama {string} accessToken
     */
 
-    
-    
-    constructor(chargeList) {
+
+    constructor() {
         this.accessToken = "pk.eyJ1IjoiZW56b2NvbnRpbmhvIiwiYSI6ImNrNmkyYjVzdjFnM3IzZW52N21ydmgydG8ifQ.t2TaKZvtBCCrGvyLM2UjJA";
+        this.chargeTerminalList = new Array();
+    }
+
+    addListCharge(chargeList){
         this.chargeTerminalList = chargeList;
+        console.log(this.chargeTerminalList);
     }
 
     render() {
@@ -177,13 +181,13 @@ class Map {
 
                     if(autonomieRestante < seuilAutonomieAcceptable){
                         console.log("On a des ennuis au bout de " + distanceCumulee + "km.");
-                        for(pointDeRecharge = 0; pointDeRecharge<chargeList.length ; pointDeRecharge++){
+                        for(pointDeRecharge = 0; pointDeRecharge<chargeTerminalList.length ; pointDeRecharge++){
                             // On est à pointDestination
-                            chargeDestination = L.point(chargeList[pointDeRecharge].getAddress().getLatitude(),chargeList[pointDeRecharge].getAddress().getLongitude());
+                            chargeDestination = L.point(chargeTerminalList[pointDeRecharge].getAddress().getLatitude(),chargeTerminalList[pointDeRecharge].getAddress().getLongitude());
                             if(pointDestination.distanceTo(chargeDestination) < autonomieRestante){
                                 //alors le point est atteignable avec l'autonomie qui nous reste
-                                waypointsDeRecharge.push(chargeList[pointDeRecharge].getAddress().getLatitude(),chargeList[pointDeRecharge].getAddress().getLongitude());
-                                console.log("On a rechargé la batterie à 100% au point de recharge de " + chargeList[pointDeRecharge].getAddress().getCity() + chargeList[pointDeRecharge].getAddress().getLatitude() + " " + chargeList[pointDeRecharge].getAddress().getLongitude())
+                                waypointsDeRecharge.push(chargeTerminalList[pointDeRecharge].getAddress().getLatitude(),chargeTerminalList[pointDeRecharge].getAddress().getLongitude());
+                                console.log("On a rechargé la batterie à 100% au point de recharge de " + chargeTerminalList[pointDeRecharge].getAddress().getCity() + chargeTerminalList[pointDeRecharge].getAddress().getLatitude() + " " + chargeTerminalList[pointDeRecharge].getAddress().getLongitude())
                                 autonomieRestante = autonomieMaxVehiculeAssocie - chargeDestination.distanceTo(L.point(routes[0].coordinates[point+2].lat,routes[0].coordinates[point+2].lng));
                             }
 

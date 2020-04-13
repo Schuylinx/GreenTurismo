@@ -43,6 +43,7 @@ window.onload = function(){
             );
 
             mapService.setPointDeRechargeList(tmpList);
+            mapService.getMap().addListCharge(tmpList);
         }
 
         map.render();
