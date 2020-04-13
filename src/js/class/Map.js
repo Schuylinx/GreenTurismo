@@ -175,10 +175,11 @@ class Map {
                 for(point = 0; point < routes[0].coordinates.length-1; point++){
                     pointOrigine = L.latLng(routes[0].coordinates[point].lat,routes[0].coordinates[point].lng);
                     pointDestination = L.latLng(routes[0].coordinates[point+1].lat,routes[0].coordinates[point+1].lng);
-                    distanceCumulee += pointOrigine.distanceTo(pointDestination); //On s'autorise 8% d'erreur sur le calcul point à point
-                    console.log("Distance cumulée : "+distanceCumulee);
+                    distanceCumulee += pointOrigine.distanceTo(pointDestination)/1000; 
+                    console.log("Distance cumulée : " + distanceCumulee);
                     autonomieRestante = autonomieDebutVehiculeAssocie - distanceCumulee;
                     console.log("Autonomie restante : " + autonomieRestante);
+                    console.log(point);
                     var zob = false;
 
                     if(autonomieRestante < seuilAutonomieAcceptable){
@@ -190,6 +191,7 @@ class Map {
 
                             if(pointDestination.distanceTo(chargeDestination)/1000 < autonomieRestante && zob){
                                 //alors le point est atteignable avec l'autonomie qui nous reste
+                                
                                 console.log("chargeDestiation :");
                                 console.log(chargeDestination);
                                 waypointsDeRecharge.push(chargeList[pointDeRecharge].getAddress().getLatitude(),chargeList[pointDeRecharge].getAddress().getLongitude());
