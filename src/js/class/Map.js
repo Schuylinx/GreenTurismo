@@ -101,7 +101,6 @@ class Map {
         var waypointsDeRecharge = [];
         //On ajoute le premier point de la liste (le markerDepart)
         waypoints.push(L.latLng(originLatLng['lat'],originLatLng['lng']));
-        waypointsDeRecharge.push(L.latLng(originLatLng['lat'],originLatLng['lng']));
 
         //On ajoute le dernier point de la liste (le markerArrivee)
         waypoints.push(L.latLng(destinationLatLng['lat'],destinationLatLng['lng']));
@@ -144,7 +143,7 @@ class Map {
                         });
                     }
                 }
-            });
+            }).addTo(this.map);
             routeControl.on('routesfound', (e) => {
                 var routes = e.routes;
                 distancePoints = (routes[0].summary.totalDistance) /1000;
@@ -153,7 +152,7 @@ class Map {
         }
 
         function returnWaypoints(distancePoints, autonomieDebutVehiculeAssocie, autonomieMaxVehiculeAssocie, routes, chargeList) {
-            if(distancePoints > autonomieDebutVehiculeAssocie) {
+            if(distancePoints > autonomieDebutVehiculeAssocie){
                 console.log("Distance trop élevée, rechargement de la batterie obligatoire sur le trajet. :(");
                 //on va chercher un point de recharge proche cad distance entre A et recharge et entre B et recharge <<<< à distance A B
                 //
@@ -169,9 +168,10 @@ class Map {
                 let pointDestination;
                 let chargeDestination;
                 var distanceEnKm = originLatLng.distanceTo(destinationLatLng);
+
+                let pointsRechargePotentiels = [];
+
                 console.log(routes[0].coordinates.length);
-
-
 
                 for(point = 0; point < routes[0].coordinates.length-1; point++){
                     pointOrigine = L.latLng(routes[0].coordinates[point].lat,routes[0].coordinates[point].lng);
@@ -181,37 +181,49 @@ class Map {
                     autonomieRestante = autonomieDebutVehiculeAssocie - distanceCumulee;
                     console.log("Autonomie restante : " + autonomieRestante);
                     console.log(point);
-                    var zob = false;
 
                     if(autonomieRestante < seuilAutonomieAcceptable){
-                        zob = true;
                         console.log("On a des ennuis au bout de " + distanceCumulee + "km.");
                         for(pointDeRecharge = 0; pointDeRecharge<chargeList.length ; pointDeRecharge++){
                             // On est à pointDestination
                             chargeDestination = L.latLng(chargeList[pointDeRecharge].getAddress().getLatitude(),chargeList[pointDeRecharge].getAddress().getLongitude());
 
-                            if(pointDestination.distanceTo(chargeDestination)/1000 < autonomieRestante && zob){
-                                //alors le point est atteignable avec l'autonomie qui nous reste
-
-                                console.log("chargeDestiation :");
-                                console.log(chargeDestination);
-                                console.log("Je push un canon");
-                                waypointsDeRecharge.push(chargeDestination);
-
-                                console.log("On a rechargé la batterie à 100% au point de recharge de "
-                                    + chargeList[pointDeRecharge].getAddress().getCity()
-                                    + chargeList[pointDeRecharge].getAddress().getLatitude()
-                                    + " "
-                                    + chargeList[pointDeRecharge].getAddress().getLongitude()
-                                );
-                                autonomieRestante = autonomieMaxVehiculeAssocie - chargeDestination.distanceTo(L.latLng(routes[0].coordinates[point+2].lat,routes[0].coordinates[point+2].lng))/1000;
-                                autonomieDebutVehiculeAssocie = autonomieRestante;
-                                distanceCumulee = 0;
-                                zob = false;
-                                console.log("autonomie max vehicule : " + autonomieRestante);
-                                console.log("distance au point de recharge : " + chargeDestination.distanceTo(L.latLng(routes[0].coordinates[point+2].lat,routes[0].coordinates[point+2].lng))/1000);
+                            if(pointDestination.distanceTo(chargeDestination)/1000 < autonomieRestante){
+                                //alors le point est atteignable avec l'autonomie qui nous reste, on l'ajoute dans une liste de points potentiels
+                                let pointRechargeObject = {"chargeDestination":chargeDestination, "distance":pointDestination.distanceTo(chargeDestination)/1000, "pointRecharge":chargeList[pointDeRecharge]};
+                                console.log("Potentiel point dans le rayon");
+                                console.log(pointRechargeObject);
+                                pointsRechargePotentiels.push(pointRechargeObject);
                             }
+                        }
+                        // Si la liste n'est pas vide, alors on va aller chercher celui qui est le plus proche du point actuel 
+                        if(pointsRechargePotentiels.length > 0){
 
+                            let distancePointRechargePlusProche = 99;
+                            let latLongPointRechargePlusProche;
+                            let pointRechargePlusProche;
+
+                            pointsRechargePotentiels.forEach(element => {
+                                if(element.distance < distancePointRechargePlusProche){
+                                    console.log("Point plus intéressant... Distance de " + element.distance + element.chargeDestination);
+                                    latLongPointRechargePlusProche = element.chargeDestination;
+                                    distancePointRechargePlusProche = element.distance;
+                                    pointRechargePlusProche = element.pointRecharge;
+                                }
+                            });
+
+                            waypointsDeRecharge.push(pointRechargePlusProche);
+                            console.log("On a rechargé la batterie à 100% au point de recharge de "
+                                + pointRechargePlusProche.getAddress().getCity()
+                                + pointRechargePlusProche.getAddress().getLatitude()
+                                + " "
+                                + pointRechargePlusProche.getAddress().getLongitude()
+                            );
+                            autonomieRestante = autonomieMaxVehiculeAssocie - chargeDestination.distanceTo(L.latLng(routes[0].coordinates[point+2].lat,routes[0].coordinates[point+2].lng))/1000;
+                            autonomieDebutVehiculeAssocie = autonomieRestante;
+                            distanceCumulee = 0;
+                            console.log("autonomie max vehicule : " + autonomieRestante);
+                            console.log("distance au point de recharge : " + chargeDestination.distanceTo(L.latLng(routes[0].coordinates[point+2].lat,routes[0].coordinates[point+2].lng))/1000);
                         }
 
                         //à partir de pointDestination, on parcourt tous les pdr pour trouver celui dont la distanceTo est la plus faible et et qui respecte Aut100 − DR→B > Autcour − DP→B
@@ -223,14 +235,13 @@ class Map {
                     }
                 }
                 //console.log("Distance finale cumulée : " + distanceCumulee);
-                //on injecte le point d'arrivée
-                waypointsDeRecharge.push(L.latLng(destinationLatLng['lat'],destinationLatLng['lng']));
-                console.log("Je push l'arrivée");
             }
             else {
                 console.log("Distance réalisable en 1 trajet, pas besoin de s'arrêter ! :)");   
             }
         }
+        
+        console.log("ICIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII");
         console.log(waypointsDeRecharge);
         return waypointsDeRecharge;
     }
@@ -239,51 +250,16 @@ class Map {
 
     navCalculator(markerDepart, markerArrivee, autonomie, autonomieMaximale) {
         var that = this;
-        let waypointsOfficiel = this.getItinerary(markerDepart, markerArrivee, autonomie, autonomieMaximale, this.chargeTerminalList);
-        debugger
-
-
+        this.getItinerary(markerDepart, markerArrivee, autonomie, autonomieMaximale, this.chargeTerminalList);
         return new Promise(function (resolve, reject) {
             
-            /*var originLatLng = markerDepart.getLatLng();
+            var originLatLng = markerDepart.getLatLng();
             var destinationLatLng = markerArrivee.getLatLng();
 
             var origine =  L.point(originLatLng['lat'],originLatLng['lng']);
             var destination = L.point(destinationLatLng['lat'],destinationLatLng['lng']);
 
-            var distanceEnKm = originLatLng.distanceTo(destinationLatLng)/1000;*/
-
-
-
-            var routeControl = L.Routing.control({
-                waypoints: waypointsOfficiel,
-                routeWhileDragging: false,
-                createMarker: function(i, start, n){
-                    if(i === 0){
-                        return L.marker(start.latLng, {
-                            icon: new L.Icon({
-                                iconUrl: 'src/img/marker_green.png',
-                                iconSize: [32, 32],
-                                shadowUrl: '',
-                                shadowSize: [0, 0]
-                            })
-                        });
-                    }else {
-                        return L.marker(start.latLng, {
-                            icon: new L.Icon({
-                                iconUrl: 'src/img/marker_red.png',
-                                iconSize: [32, 32],
-                                shadowUrl: '',
-                                shadowSize: [0, 0]
-                            })
-                        });
-                    }
-                }
-            }).addTo(that.map);
-
-
-
-
+            var distanceEnKm = originLatLng.distanceTo(destinationLatLng)/1000;
             //console.log("distance : ");
             //console.log(distanceEnKm);
 
