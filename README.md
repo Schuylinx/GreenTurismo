@@ -32,7 +32,91 @@ Nous vous recommandons également ces itinéraires qui permettent de prouver eff
 | Lyon | Paris | Tesla ou Zoé | 140km, soit environ 35% pour la Tesla et 56% pour la Zoé| 3 |
 
 
-## Fonctionnalités 
+## Fonctionnalités
 
-## Architecture 
+- On peut **double-cliquer sur la carte** pour sélectionner son point de départ et son point d'arrivée
+- On peut sélectionner son modèle de voiture
+- On peut spécifier son autonomie restante
+- On peut calculer son trajet
+- On peut déplacer la route avec la souris pour la faire correspondre à un itinéraire personnalisé
 
+## Architecture
+
+GreenTurismo contient 90% de JS, le fichier app.js est une sorte de main.
+- Le répertoire **class** contient les class qui définissent les objets élémentaires de l'application.
+- le dossier **json**  contient les données (données depuis openstreetmap).
+- **leaflet** contient les plugins leaflet
+- le dossier **service** contient une classe de services (charger les données, créer les différentes instances des objets)
+
+```
+GreenTurismo
+│   index.html
+│   Projet SmartEV.pdf
+│   README.md
+│
+└───src
+    ├───css
+    │   │   all.min.css
+    │   │   styles.css
+    │   │
+    │   └───leaflet
+    │           leaflet-routing-machine.css
+    │           leaflet.routing.icons.png
+    │           MarkerCluster.css
+    │           MarkerCluster.Default.css
+    │           routing-icon.png
+    │
+    ├───img
+    │       favicon.ico
+    │       feuille-verte-png-1.png
+    │       logo_greenturismo.png
+    │       marker_green.png
+    │       marker_red.png
+    │
+    ├───js
+    │   │   app.js
+    │   │   select.js
+    │   │
+    │   ├───class
+    │   │       Address.js
+    │   │       ChargeTerminal.js
+    │   │       Map.js
+    │   │
+    │   ├───json
+    │   │       OpenChargeMapData.json
+    │   │       world.json
+    │   │
+    │   ├───leaflet
+    │   │       leaflet-routing-machine.js
+    │   │       leaflet.markercluster.js
+    │   │
+    │   └───service
+    │           MapService.js
+    │
+    └───webfonts
+        │   fa-brands-400.eot
+        │   fa-brands-400.svg
+        │   fa-brands-400.ttf
+        │   fa-brands-400.woff
+        │   fa-brands-400.woff2
+        │   fa-regular-400.eot
+        │   fa-regular-400.svg
+        │   fa-regular-400.ttf
+        │   fa-regular-400.woff
+        │   fa-regular-400.woff2
+        │   fa-solid-900.eot
+        │   fa-solid-900.svg
+        │   fa-solid-900.ttf
+        │   fa-solid-900.woff
+        │   fa-solid-900.woff2
+        │
+        └───Ubuntu
+                Ubuntu-Bold.ttf
+                Ubuntu-BoldItalic.ttf
+                Ubuntu-Italic.ttf
+                Ubuntu-Light.ttf
+                Ubuntu-LightItalic.ttf
+                Ubuntu-Medium.ttf
+                Ubuntu-MediumItalic.ttf
+                Ubuntu-Regular.ttf
+                Ubuntu-Regular.ttf
