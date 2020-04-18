@@ -58,8 +58,6 @@ class MapService {
         return this.map;
     }
 
-    // TODO some functions to sort the list
-
 }
 
 export { MapService };

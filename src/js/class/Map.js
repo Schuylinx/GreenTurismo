@@ -12,7 +12,6 @@ class Map {
     * @parama {string} accessToken
     */
 
-
     constructor() {
         this.accessToken = "pk.eyJ1IjoiZW56b2NvbnRpbmhvIiwiYSI6ImNrNmkyYjVzdjFnM3IzZW52N21ydmgydG8ifQ.t2TaKZvtBCCrGvyLM2UjJA";
         this.chargeTerminalList = new Array();
@@ -94,74 +93,86 @@ class Map {
         return test;
     }
 
+    /**
+    * Cette fonction va calculer l'itinéraire initial entre le point de départ et d'arrivée
+    * Elle va retourner une liste de point contenant ou pas des points de recharge
+    * Elle consitue le coeur de notre programme
+    */
     getItinerary(markerDepart,markerArrivee,autonomieDebutVehiculeAssocie,autonomieMaxVehiculeAssocie, chargeList){
         var originLatLng = markerDepart.getLatLng();
         var destinationLatLng = markerArrivee.getLatLng();
         var waypoints = [];
         var waypointsDeRecharge = [];
+
         //On ajoute le premier point de la liste (le markerDepart)
         waypoints.push(L.latLng(originLatLng['lat'],originLatLng['lng']));
-        waypointsDeRecharge.push(L.latLng(originLatLng['lat'],originLatLng['lng']));
 
         //On ajoute le dernier point de la liste (le markerArrivee)
         waypoints.push(L.latLng(destinationLatLng['lat'],destinationLatLng['lng']));
 
         console.log("autonomieDebut : " + autonomieDebutVehiculeAssocie + " autonomieMaxVehiculeAssocie rechargé : " + autonomieMaxVehiculeAssocie);
 
-        let element=0;
-        for(element ; element < waypoints.length -1 ; element++){
-            /*console.log(waypoints[element]);
-            console.log(waypoints[element+1]);*/
-            let stringToReturn;
-            let Point1 = waypoints[element];
-            let Point2 = waypoints[element+1];
-            let distancePoints = 0;
+        let Point1 = waypoints[0];
+        let Point2 = waypoints[1];
+        let distancePoints = 0;
+        var stringToReturn = [];
+        var bool = true;
 
-            var routeControl = L.Routing.control({
-                waypoints: [
-                    L.latLng(Point1.lat,Point1.lng),
-                    L.latLng(Point2.lat,Point2.lng)
-                ],
-                routeWhileDragging: false,
-                createMarker: function(i, start, n){
-                    if(i === 0){
-                        return L.marker(start.latLng, {
-                            icon: new L.Icon({
-                                iconUrl: 'src/img/marker_green.png',
-                                iconSize: [32, 32],
-                                shadowUrl: '',
-                                shadowSize: [0, 0]
-                            })
-                        });
-                    }else {
-                        return L.marker(start.latLng, {
-                            icon: new L.Icon({
-                                iconUrl: 'src/img/marker_red.png',
-                                iconSize: [32, 32],
-                                shadowUrl: '',
-                                shadowSize: [0, 0]
-                            })
-                        });
-                    }
+        var routeControl = L.Routing.control({
+            waypoints: [
+                L.latLng(Point1.lat,Point1.lng),
+                L.latLng(Point2.lat,Point2.lng)
+            ],
+            routeWhileDragging: false,
+            createMarker: function(i, start, n){
+                if(i === 0){
+                    return L.marker(start.latLng, {
+                        icon: new L.Icon({
+                            iconUrl: 'src/img/marker_green.png',
+                            iconSize: [32, 32],
+                            shadowUrl: '',
+                            shadowSize: [0, 0]
+                        })
+                    });
+                }else {
+                    return L.marker(start.latLng, {
+                        icon: new L.Icon({
+                            iconUrl: 'src/img/marker_red.png',
+                            iconSize: [32, 32],
+                            shadowUrl: '',
+                            shadowSize: [0, 0]
+                        })
+                    });
                 }
-            });
-            routeControl.on('routesfound', (e) => {
+            }
+        }).addTo(this.map);
+
+        
+        routeControl.on('routesfound', (e) => {
+            if(bool){
                 var routes = e.routes;
                 distancePoints = (routes[0].summary.totalDistance) /1000;
-                stringToReturn = returnWaypoints(distancePoints, autonomieDebutVehiculeAssocie, autonomieMaxVehiculeAssocie, routes, chargeList);         
-            });
-        }
+                stringToReturn = returnWaypoints(distancePoints, autonomieDebutVehiculeAssocie, autonomieMaxVehiculeAssocie, routes, routeControl, chargeList);         
+                console.log(stringToReturn);
 
-        function returnWaypoints(distancePoints, autonomieDebutVehiculeAssocie, autonomieMaxVehiculeAssocie, routes, chargeList) {
+                let i = 0;
+                for(i ; i < stringToReturn.length ; i++ ){
+                    routeControl.spliceWaypoints(i+1,0,stringToReturn[i]);
+                }
+                bool = false;
+            }
+        });
+        
+        
+        /**
+        * Cette fonction permet de gérer la synchronisation pour le calcul d'un éventuel point de recharge
+        */
+        function returnWaypoints(distancePoints, autonomieDebutVehiculeAssocie, autonomieMaxVehiculeAssocie, routes, routeControl, chargeList) {
             if(distancePoints > autonomieDebutVehiculeAssocie) {
+                // Alors on va être obligé de recharger sur le trajet
                 console.log("Distance trop élevée, rechargement de la batterie obligatoire sur le trajet. :(");
-                //on va chercher un point de recharge proche cad distance entre A et recharge et entre B et recharge <<<< à distance A B
-                //
-
-                //on va parcourir e.routes[0].coordinates, pour chaques coordonnée, on calcule sa ditance au début en ajoutant 
-
                 let distanceCumulee = 0; 
-                let seuilAutonomieAcceptable = 80; //seuil de début de recherche d'une borne aux alentours
+                let seuilAutonomieAcceptable = 80; //seuil de début de recherche d'une borne aux alentours == Passage en réserve
                 let autonomieRestante = 0;
                 var point;
                 var pointDeRecharge;
@@ -169,37 +180,34 @@ class Map {
                 let pointDestination;
                 let chargeDestination;
                 var distanceEnKm = originLatLng.distanceTo(destinationLatLng);
-                console.log(routes[0].coordinates.length);
+                //console.log(routes[0].coordinates.length);
 
-
-
+                /* On va parcourir tous les points calculés pour effectuer le dessin */ 
                 for(point = 0; point < routes[0].coordinates.length-1; point++){
                     pointOrigine = L.latLng(routes[0].coordinates[point].lat,routes[0].coordinates[point].lng);
                     pointDestination = L.latLng(routes[0].coordinates[point+1].lat,routes[0].coordinates[point+1].lng);
                     distanceCumulee += pointOrigine.distanceTo(pointDestination)/1000; 
-                    console.log("Distance cumulée : " + distanceCumulee);
+                    //console.log("Distance cumulée : " + distanceCumulee);
                     autonomieRestante = autonomieDebutVehiculeAssocie - distanceCumulee;
-                    console.log("Autonomie restante : " + autonomieRestante);
-                    console.log(point);
-                    var zob = false;
+                    //console.log("Autonomie restante : " + autonomieRestante);
+                    var bool = false;
 
                     if(autonomieRestante < seuilAutonomieAcceptable){
-                        zob = true;
-                        console.log("On a des ennuis au bout de " + distanceCumulee + "km.");
+                        bool = true;
+                        console.log("On a atteint la réserve minimum acceptable de " + seuilAutonomieAcceptable + "km au bout de " + distanceCumulee + "km, on cherche donc un point de recharge...");
+                        // On va parcourir toute la liste des points de recharge
                         for(pointDeRecharge = 0; pointDeRecharge<chargeList.length ; pointDeRecharge++){
                             // On est à pointDestination
                             chargeDestination = L.latLng(chargeList[pointDeRecharge].getAddress().getLatitude(),chargeList[pointDeRecharge].getAddress().getLongitude());
+                            if(pointDestination.distanceTo(chargeDestination)/1000 < autonomieRestante && bool){
+                                //Alors le point est atteignable avec l'autonomie qui nous reste
 
-                            if(pointDestination.distanceTo(chargeDestination)/1000 < autonomieRestante && zob){
-                                //alors le point est atteignable avec l'autonomie qui nous reste
-
-                                console.log("chargeDestiation :");
-                                console.log(chargeDestination);
-                                console.log("Je push un canon");
+                                //On ajoute ici le point de recharge trouvé sur l'itinéraire à la liste
                                 waypointsDeRecharge.push(chargeDestination);
-
+                                
                                 console.log("On a rechargé la batterie à 100% au point de recharge de "
-                                    + chargeList[pointDeRecharge].getAddress().getCity()
+                                    + chargeList[pointDeRecharge].getAddress().getCity()                                    
+                                    + " "
                                     + chargeList[pointDeRecharge].getAddress().getLatitude()
                                     + " "
                                     + chargeList[pointDeRecharge].getAddress().getLongitude()
@@ -207,115 +215,34 @@ class Map {
                                 autonomieRestante = autonomieMaxVehiculeAssocie - chargeDestination.distanceTo(L.latLng(routes[0].coordinates[point+2].lat,routes[0].coordinates[point+2].lng))/1000;
                                 autonomieDebutVehiculeAssocie = autonomieRestante;
                                 distanceCumulee = 0;
-                                zob = false;
-                                console.log("autonomie max vehicule : " + autonomieRestante);
-                                console.log("distance au point de recharge : " + chargeDestination.distanceTo(L.latLng(routes[0].coordinates[point+2].lat,routes[0].coordinates[point+2].lng))/1000);
+                                bool = false;
+                                //console.log("distance au point de recharge : " + chargeDestination.distanceTo(L.latLng(routes[0].coordinates[point+2].lat,routes[0].coordinates[point+2].lng))/1000);
                             }
 
                         }
-
-                        //à partir de pointDestination, on parcourt tous les pdr pour trouver celui dont la distanceTo est la plus faible et et qui respecte Aut100 − DR→B > Autcour − DP→B
-                        //on doit chercher un point dans un rayon de 80km pour aller recharger on l'ajoute à la liste on remet l'autonomie a 100% 
-                        // où :
-                        // - Aut100 désigne l’autonomie du véhicule chargé à 100 %,
-                        // - Autcour son autonomie courante au point P,
-                        // - Dx→y est la distance de x à y.
                     }
                 }
-                //console.log("Distance finale cumulée : " + distanceCumulee);
-                //on injecte le point d'arrivée
-                waypointsDeRecharge.push(L.latLng(destinationLatLng['lat'],destinationLatLng['lng']));
-                console.log("Je push l'arrivée");
+
             }
             else {
+                /* Dans ce cas l'autonomie est suffisante pour faire le trajet */
                 console.log("Distance réalisable en 1 trajet, pas besoin de s'arrêter ! :)");   
             }
+            //console.log("On retourne :");
+            //console.log(waypointsDeRecharge);
+
+            return waypointsDeRecharge;
         }
-        console.log(waypointsDeRecharge);
-        return waypointsDeRecharge;
+
     }
 
 
-
+    /**
+    * Cette fonction va calculer et tracer l'itinéraire final, avec les points de recharges éventuels ajoutés au parcours 
+    */
     navCalculator(markerDepart, markerArrivee, autonomie, autonomieMaximale) {
         var that = this;
         let waypointsOfficiel = this.getItinerary(markerDepart, markerArrivee, autonomie, autonomieMaximale, this.chargeTerminalList);
-        debugger
-
-
-        return new Promise(function (resolve, reject) {
-            
-            /*var originLatLng = markerDepart.getLatLng();
-            var destinationLatLng = markerArrivee.getLatLng();
-
-            var origine =  L.point(originLatLng['lat'],originLatLng['lng']);
-            var destination = L.point(destinationLatLng['lat'],destinationLatLng['lng']);
-
-            var distanceEnKm = originLatLng.distanceTo(destinationLatLng)/1000;*/
-
-
-
-            var routeControl = L.Routing.control({
-                waypoints: waypointsOfficiel,
-                routeWhileDragging: false,
-                createMarker: function(i, start, n){
-                    if(i === 0){
-                        return L.marker(start.latLng, {
-                            icon: new L.Icon({
-                                iconUrl: 'src/img/marker_green.png',
-                                iconSize: [32, 32],
-                                shadowUrl: '',
-                                shadowSize: [0, 0]
-                            })
-                        });
-                    }else {
-                        return L.marker(start.latLng, {
-                            icon: new L.Icon({
-                                iconUrl: 'src/img/marker_red.png',
-                                iconSize: [32, 32],
-                                shadowUrl: '',
-                                shadowSize: [0, 0]
-                            })
-                        });
-                    }
-                }
-            }).addTo(that.map);
-
-
-
-
-            //console.log("distance : ");
-            //console.log(distanceEnKm);
-
-            //var niveauDeZoom = distanceEnKm/10;
-            //console.log(niveauDeZoom);
-
-            /* On replace la vue en fonction */
-            //that.map.setView(originLatLng, destinationLatLng, niveauDeZoom);
-            // niveau de zoom : getbounds et fitbounds de la vue en fonction de la polyline
-
-            //that.getItinerary(markerDepart,markerArrivee,10);
-
-            /*L.Routing.control({
-              waypoints: [
-                    L.latLng(originLatLng['lat'],originLatLng['lng']),
-                    L.latLng(destinationLatLng['lat'],destinationLatLng['lng'])
-              ]
-            }).addTo(that.map);*/
-
-            /*var requestURL = 'https://api.mapbox.com/directions/v5/mapbox/driving/' + originLatLng['lng'] + ',' + originLatLng['lat'] + ';' + destinationLatLng['lng'] + ',' + destinationLatLng['lat'] + '.json?geometries=geojson&access_token=' + mapboxToken;
-            var request = new XMLHttpRequest();
-            request.open('GET', requestURL);
-            request.responseType = 'json';
-            request.send();
-            request.onload = function() {
-                var myLines = request.response['routes']['0']['geometry'];
-                map.removeLayer(path);
-                path = L.geoJSON(myLines, {style: myStyle});f
-                path.addTo(that.map);
-                resolve();
-            }*/
-        });
     }
 
     getMap() {
